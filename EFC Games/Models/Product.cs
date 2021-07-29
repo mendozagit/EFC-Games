@@ -9,9 +9,9 @@ namespace EFC_Games.Models
     public class Product
     {
         public int ProductId { get; set; }
-        public int Name { get; set; }
+        public string Name { get; set; }
 
-       
+
         public virtual Concept Concept { get; set; }
     }
 }

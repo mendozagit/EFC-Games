@@ -21,22 +21,60 @@ namespace EFC_Games.Migrations
             modelBuilder.Entity("EFC_Games.Models.Concept", b =>
                 {
                     b.Property<int>("ConceptId")
-                        .HasColumnType("int");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.HasKey("ConceptId");
 
                     b.ToTable("Concepts");
                 });
 
-            modelBuilder.Entity("EFC_Games.Models.Product", b =>
+            modelBuilder.Entity("EFC_Games.Models.Entity", b =>
                 {
-                    b.Property<int>("ProductId")
+                    b.Property<int>("EntityId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("Name")
+                    b.HasKey("EntityId");
+
+                    b.ToTable("Entities");
+                });
+
+            modelBuilder.Entity("EFC_Games.Models.MoralPerson", b =>
+                {
+                    b.Property<int>("MoralPersonId")
                         .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("MoralPersonId");
+
+                    b.ToTable("MoralPersons");
+                });
+
+            modelBuilder.Entity("EFC_Games.Models.PhysicalPerson", b =>
+                {
+                    b.Property<int>("PhysicalPersonId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("PhysicalPersonId");
+
+                    b.ToTable("PhysicalPersons");
+                });
+
+            modelBuilder.Entity("EFC_Games.Models.Product", b =>
+                {
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("ProductId");
 
@@ -50,14 +88,11 @@ namespace EFC_Games.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("CustomerId")
+                    b.Property<int>("EntityId")
                         .HasColumnType("int");
 
                     b.Property<decimal>("SubTotal")
                         .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("SupplierId")
-                        .HasColumnType("int");
 
                     b.Property<decimal>("Taxes")
                         .HasColumnType("decimal(18,2)");
@@ -66,6 +101,8 @@ namespace EFC_Games.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("SaleId");
+
+                    b.HasIndex("EntityId");
 
                     b.ToTable("Sales");
                 });
@@ -94,8 +131,7 @@ namespace EFC_Games.Migrations
 
                     b.HasKey("SaleItemId");
 
-                    b.HasIndex("ConceptId")
-                        .IsUnique();
+                    b.HasIndex("ConceptId");
 
                     b.HasIndex("SaleId");
 
@@ -169,29 +205,48 @@ namespace EFC_Games.Migrations
             modelBuilder.Entity("EFC_Games.Models.Service", b =>
                 {
                     b.Property<int>("ServiceId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int>("Name")
                         .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("ServiceId");
 
                     b.ToTable("Services");
                 });
 
-            modelBuilder.Entity("EFC_Games.Models.Concept", b =>
+            modelBuilder.Entity("EFC_Games.Models.MoralPerson", b =>
                 {
-                    b.HasOne("EFC_Games.Models.Product", "Product")
-                        .WithOne("Concept")
-                        .HasForeignKey("EFC_Games.Models.Concept", "ConceptId")
+                    b.HasOne("EFC_Games.Models.Entity", "Entity")
+                        .WithOne("MoralPerson")
+                        .HasForeignKey("EFC_Games.Models.MoralPerson", "MoralPersonId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
 
-                    b.HasOne("EFC_Games.Models.Service", "Service")
-                        .WithOne("Concept")
-                        .HasForeignKey("EFC_Games.Models.Concept", "ConceptId")
+            modelBuilder.Entity("EFC_Games.Models.PhysicalPerson", b =>
+                {
+                    b.HasOne("EFC_Games.Models.Entity", "Entity")
+                        .WithOne("PhysicalPerson")
+                        .HasForeignKey("EFC_Games.Models.PhysicalPerson", "PhysicalPersonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("EFC_Games.Models.Product", b =>
+                {
+                    b.HasOne("EFC_Games.Models.Concept", "Concept")
+                        .WithOne("Product")
+                        .HasForeignKey("EFC_Games.Models.Product", "ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("EFC_Games.Models.Sale", b =>
+                {
+                    b.HasOne("EFC_Games.Models.Entity", "Entity")
+                        .WithMany()
+                        .HasForeignKey("EntityId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -199,8 +254,8 @@ namespace EFC_Games.Migrations
             modelBuilder.Entity("EFC_Games.Models.SaleItem", b =>
                 {
                     b.HasOne("EFC_Games.Models.Concept", "Concept")
-                        .WithOne("SaleItem")
-                        .HasForeignKey("EFC_Games.Models.SaleItem", "ConceptId")
+                        .WithMany("SaleItems")
+                        .HasForeignKey("ConceptId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -225,6 +280,15 @@ namespace EFC_Games.Migrations
                     b.HasOne("EFC_Games.Models.Sale", "Sale")
                         .WithMany("SaleTaxes")
                         .HasForeignKey("SaleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("EFC_Games.Models.Service", b =>
+                {
+                    b.HasOne("EFC_Games.Models.Concept", "Concept")
+                        .WithOne("Service")
+                        .HasForeignKey("EFC_Games.Models.Service", "ServiceId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

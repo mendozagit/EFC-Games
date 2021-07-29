@@ -11,12 +11,13 @@ namespace EFC_Games.Models
         public int ConceptId { get; set; }
 
 
-       // public int ProductId { get; set; }
+        // public int ProductId { get; set; }
         public virtual Product Product { get; set; }
 
-       // public int ServiceId { get; set; }
+        // public int ServiceId { get; set; }
         public virtual Service Service { get; set; }
-        public SaleItem SaleItem { get; set; }
+
+        public virtual List<SaleItem> SaleItems { get; set; }
 
     }
 }
